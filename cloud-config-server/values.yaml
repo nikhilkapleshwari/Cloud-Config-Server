@@ -1,0 +1,13 @@
+replicaCount: 1
+image:
+  repository: "nikhil1632"
+  name: "cloud-config-server"
+  tag: "latest"
+component:
+  value: "backend"
+  pullPolicy: IfNotPresent
+service:
+  type: NodePort
+  port: 3058
+  targetPort: 8888
+  nodePort: 30009

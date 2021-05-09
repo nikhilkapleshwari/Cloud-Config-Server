@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-config-server-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      component: {{ .Values.component.value }}
+  template:
+    metadata:
+      labels:
+        component: {{ .Values.component.value }}
+    spec:
+      containers:
+        - name: cloud-config-server
+          image: {{ .Values.image.repository }}/{{ .Values.image.name }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8888
+          volumeMounts:
+            - mountPath: /etc/config
+              name: config
+      volumes:
+        - name: config
+          configMap:
+            name: cloud-config-server-configmap
+            items:
+              - key: application_yaml
+                path: application.yaml
+              - key: order_service_yaml
+                path: ORDER_SERVICE.yaml
+              
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloud-config-server-configmap
+data:
+  order_service_yaml:  {{ tpl (.Files.Get "ORDER_SERVICE.yaml") . | quote }}
+  application_yaml: {{ tpl (.Files.Get "application.yaml") . | quote }}
+   
